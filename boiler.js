@@ -5,7 +5,7 @@ define([
 	'jquery',
 	'underscore',
 	'backbone'
-], function ($,_, backbone) {
+], function ($,_, Backbone) {
 
 
 //return things to be used by other modules
