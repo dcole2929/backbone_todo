@@ -1,50 +1,115 @@
-define([
+define ([
 	'jquery',
 	'underscore',
-	'backbone'
-], function ($, _, Backbone) {
-
+	'backbone',
+	'views/todoView',
+	'collections/todoCollection',
+	'text!templates/stats_template.htm'
+], function ($, _, Backbone, TodoView, TodoCollection) {
+	
 	'use strict';
 
-	var TodoView = Backbone.View.Extend({
+	var todoListView = Backbone.View.Extend({
 
-		tagName: 'li',
+		el: '#container',
 
-		template: _.template($('#item_template.htm').html()),
+		stats: _.template('stats_template'),
 
 		events: {
-			'click .toggle': 	'toggleCompleted',
-			'dblclick label':	'edit',
-			'click .destroy':	'clear',
-			'keypress .edit':	'updateOnEnter',
-			'blur .edit':		'close'
+			'keypress #new-todo': 'createOnEnter',
+			'click #clear-complete': 'clearComplete',
+			'click #toggle-all': 'toggleAllComplete'
 		},
 
 		initialize: function () {
-			// this.listenTo(this.model, 'change', this.render);
-			// this.listenTo(this.model, 'destroy', this.remove);
-			// this.listenTo(this.model, 'visible', this.toggleVisible);
+			this.AllCheckbox = this.$('#toggle-all')[0];
+			this.$input = this.$('#new-todo');
+			this.$footer = this.$('#footer');
+			this.$content = this.$('#content');
+
+			// Bind to collections events
+			this.listenTo(TodoCollection, 'add', this.addOne);
+			this.listenTo(TodoCollection, 'reset', this.addAll);
+			this.listenTo(TodoCollection, 'change:completed', this.filterOne);
+			this.listenTo(TodoCollection, 'filter', this.filterAll);
+			this.listenTo(TodoCollection, 'all', this.render);
+
+			TodoCollection.fetch();
 		},
 
 		render: function () {
-			this.$el.html(this.template(this.model.toJSON()));
+			var completed = TodoCollection.completed().length;
+			var remaining = TodoCollection.remaining().length;
 
+			if(TodoCollection.length) {
+				this.$content.show();
+				this.$footer.show();
+
+				this.$footer.html(this.statsTemplate({
+					completed: completed,
+					remaining: remaining
+				}));
+
+				this.$('#filter li a')
+					.removeClass('selected')
+					.filter('[href="#/' + (TodoFilter || '') + '"]')
+					.addClass('selected');
+			} else {
+				this.$content.hide();
+				this.$footer.hide();
+			}
+
+			this.AllCheckbox.checked = !remaining;
 		},
 
-		toggleVisible: function () {
-			this.$el.toggleClass('hidden', this.isHidden());
-
+		addOne: function (todo) {
+			var view = new TodoView({model:todo});
+			$('#todo-list').append(view.el);
 		},
 
-		isHidden: function () {
-			var isCompleted = this.model.get('completed');
-			return (//hidden cases only
-				(!isCompleted && TodoFIlter === 'completed') 
-				|| (isCompleted && TodoFilter === 'active'));
+		addAll: function () {
+			this.$('#todo-list').html('');
+			TodoCollection.each(this.addOne, this);
 		},
 
+		filterOne: function  () {
+			todo.trigger('visible');
+		},
+
+		filterAll: function () {
+			TodoCollection.each(this.filterOne, this);
+		},
+
+		createOnEnter: function () {
+			if (e.which !== ENTER_KEY || !this.$input.val().trim()) {
+				return;
+			}
+
+			TodoCollection.create({
+				title: this.$input.val().trim(),
+				order: TodoCollection.nextOrder(),
+				completed: false
+			});
+			this.$input.val('');
+		},
+
+		clearAllComplete: function (e) {
+			_.invoke(TodoCollection.completed(), 'destroy');
+			return false;
+		},
+
+		toggleAllComplete: function () {
+			var complete = this.AllCheckbox.checked;
+
+			TodoCollection.each(function(todo) {
+				todo.save({
+					'completed':completed
+				});
+			});
+		}
 
 	});
 
-	return TodoView;
+	return todoListView;
+
 });

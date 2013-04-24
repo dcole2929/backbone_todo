@@ -1,7 +1,8 @@
 // Filename: models/todoModel
 define([
 	'underscore',
-	'backbone'
+	'backbone',
+	'collections/TodoCollections'
 ], function (_, Backbone){
 	
 	'use strict';
@@ -12,6 +13,7 @@ define([
 
 		defaults: {
 			title: '',
+			order: TodoCollections.nextOrder(),
 			completed: false
 		},
 
