@@ -2,8 +2,8 @@
 define([
 	'underscore',
 	'backbone',
-	'collections/TodoCollections'
-], function (_, Backbone){
+	'collections/todoCollection'
+], function (_, Backbone, TodoCollection){
 	
 	'use strict';
 
@@ -13,13 +13,12 @@ define([
 
 		defaults: {
 			title: '',
-			order: TodoCollections.nextOrder(),
 			completed: false
 		},
 
 		toggle: function () {
 			this.save({
-				completed: !this.get('completed');
+				completed: !this.get('completed')
 			});
 		}
 

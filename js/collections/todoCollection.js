@@ -1,11 +1,12 @@
 // Filename: collections/todos
 define([
 	'underscore',
-	'backbone'
-], function (_, Backbone) {
+	'backbone',
+	'models/todoModel'
+], function (_, Backbone, TodoModel) {
 	'use strict';
 
-	var TodoList = Backbone.Collection.extend({
+	var TodoCollection = Backbone.Collection.extend({
 
 		model: TodoModel,
 
@@ -26,5 +27,5 @@ define([
 
 	});
 
-	return TodoList;
+	return TodoCollection;
 });

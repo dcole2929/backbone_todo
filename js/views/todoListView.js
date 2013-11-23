@@ -5,7 +5,7 @@ define ([
 	'views/todoView',
 	'collections/todoCollection',
 	'text!templates/stats_template.htm'
-], function ($, _, Backbone, TodoView, TodoCollection) {
+], function ($, _, Backbone, TodoView, TodoCollection, stats_template) {
 	
 	'use strict';
 
@@ -13,7 +13,7 @@ define ([
 
 		el: '#container',
 
-		stats: _.template('stats_template'),
+		statsTemplate: _.template(stats_template),
 
 		events: {
 			'keypress #new-todo': 'createOnEnter',

@@ -3,7 +3,7 @@ define([
 	'underscore',
 	'backbone',
 	'text!templates/item_template.htm'
-], function ($, _, Backbone, item_template) {
+], function ($,_, Backbone, item_template) {
 
 	'use strict';
 
